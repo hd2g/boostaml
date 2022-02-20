@@ -33,7 +33,15 @@ let list ?title ?archived ?workspace_id ?parent_folder_id ?order_by instance () 
   let headers = Boostnote__instance.headers_of instance in
   Request.get ~headers uri
 
-let get instance ~docid () = assert false
+let get instance ~document_id () =
+  let uri =
+    instance
+    |> Boostnote__instance.url_of
+         (Printf.sprintf "/docs/%s" document_id)
+  in
+  let headers = Boostnote__instance.headers_of instance in
+  Request.get ~headers uri
+
 let create instance ~title ~content () = assert false
 let update instance ~docid () = assert false
 let delete instance ~docid () = assert false
