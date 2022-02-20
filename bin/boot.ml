@@ -10,7 +10,7 @@ let token =
       | Some x -> x
       | None -> failwith "BOOST_NOTE_TOKEN isn't defined")
 
-let command =
+let documents =
   Command.basic
     ~summary:"Boost Note"
     ~readme:(fun () -> "More detailed information")
@@ -29,6 +29,12 @@ let command =
      |> (function
          | Ok body -> print_endline body
          | Error message -> message |> Piaf.Error.to_string |> print_endline))
+
+let command =
+  Command.group
+    ~summary:"Boost Note"
+    [ "documents", documents
+    ]
 
 let () =
   Command.run
