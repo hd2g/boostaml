@@ -1,0 +1,7 @@
+(env
+ (dev
+   (flags (:standard -w -30-27))))
+
+(library
+ (name boostnote)
+ (libraries core piaf yojson ppx_deriving_yojson))

@@ -1,0 +1,4 @@
+(executable
+ (name boot)
+ (libraries core re boostnote)
+ (preprocess (pps ppx_jane)))
