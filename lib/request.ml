@@ -22,13 +22,13 @@ module Method = struct
         | _ -> raise @@ Invalid_argument s)
 
   let string_of = function
-    | Get -> "Get"
-    | Post -> "Post"
-    | Put -> "Put"
-    | Delete -> "Delete"
-    | Patch -> "Patch"
-    | Options -> "Options"
-    | Connect -> "Connect"
+    | Get -> "GET"
+    | Post -> "POST"
+    | Put -> "PUT"
+    | Delete -> "DELETE"
+    | Patch -> "PATCH"
+    | Options -> "OPTIONS"
+    | Connect -> "CONNECT"
 end
 
 module type Client = sig
@@ -59,27 +59,39 @@ end
 include Implement(struct
   type response = (string, Piaf.Error.t) Lwt_result.t
 
-  external piaf_method_of_meth : Method.t -> Piaf.Method.t = "%identity"
+  let piaf_method_of_meth (meth : Method.t) : Piaf.Method.t =
+    Method.string_of meth |> Piaf.Method.of_string
 
-  let request ?(queries = []) ?(body = []) ?(headers = []) ~meth url =
-    let uri = Uri.(add_query_params' (of_string url) queries) in
-    let meth = piaf_method_of_meth meth in
-    let body =
-      if (meth = `GET || List.length body = 0) then
-        None
-      else
-        let body' = List.map (fun (k, v) -> (k, `Stringlit v)) body in
+  let piaf_body_of_body body : Piaf.Body.t option =
+    Base.Option.try_with (fun () ->
+        let body' =
+          List.map
+            (fun (k, v) -> (k, `Stringlit (Printf.sprintf {|"%s"|} v)))
+            body
+        in
         `Assoc body'
         |> Yojson.Raw.to_string
-        |> Piaf.Body.of_string
-        |> Option.some
+        |> (fun json -> print_endline ("body: " ^ json); json)
+        |> Piaf.Body.of_string)
+
+  let request ?(queries = []) ?(body = []) ?(headers = []) ~meth url =
+    let uri =
+      if ((List.length queries) = 0) then
+        Uri.of_string url
+      else
+        Uri.(add_query_params' (of_string url) queries)
     in
+    let body =
+      if (meth = Method.Get || List.length body = 0) then
+        None
+      else
+        match (piaf_body_of_body body) with
+        | Some _  as body ->  body
+        | None -> failwith @@ "Parse body as json failed"
+    in
+    let meth = piaf_method_of_meth meth in
     let open Lwt_result.Syntax in
-    let* res =
-      match body with
-      | None -> Piaf.Client.Oneshot.get ~headers uri
-      | Some body -> Piaf.Client.Oneshot.request ~headers ~body ~meth uri
-    in
+    let* res = Piaf.Client.Oneshot.request ~headers ?body ~meth uri in
     if (Piaf.Status.is_successful res.status) then
       Piaf.Body.to_string res.body
     else

@@ -42,11 +42,34 @@ let get_document =
            | Ok body -> print_endline body
            | Error message -> message |> Piaf.Error.to_string |> print_endline)))
 
+let create_docuemnt =
+  Command.basic
+    ~summary:"Create a document"
+    (let open Command.Let_syntax in
+     let%map_open title = anon ("title" %: string)
+     and content = anon ("content" %: string)
+     and workspace_id = flag "--workspace-id" (optional string) ~doc:"target workspace id"
+     and parent_folder_id = flag "--parnet-folder-id" (optional string) ~doc:"target parent folder id"
+     and tags = flag "--tags" (optional string) ~doc:"tags to add"
+     in
+     (fun () ->
+       let instance = Boostnote.Instance.(make ~base_url ~token) in
+       Boostnote.Documents.create
+         instance
+         ~title ~content
+         ?workspace_id ?parent_folder_id ?tags
+         ()
+       |> Lwt_main.run
+       |> (function
+           | Ok body -> body |> print_endline
+           | Error message -> message |> Piaf.Error.to_string |> print_endline)))
+
 let documents =
   Command.group
     ~summary:"Commands about documents"
     [ "list", list_documents
     ; "get", get_document
+    ; "create", create_docuemnt
     ]
 
 let command =

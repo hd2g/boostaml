@@ -13,7 +13,8 @@ let make ~base_url ~token =
   { base_url; token }
 
 let headers_of { token; _ } =
-  [ "Authorization", Printf.sprintf "Bearer %s" token ]
+  [ "Content-Type", "application/json"
+  ; "Authorization", Printf.sprintf "Bearer %s" token ]
 
 let url_of rest { base_url; _ } =
   Printf.sprintf "%s%s" base_url rest
