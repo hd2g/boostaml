@@ -110,10 +110,49 @@ let documents =
     ; "delete", delete_document
     ]
 
+(* let list_folders = *)
+(*   Command.basic *)
+(*     ~summary:"List folder" *)
+(*     (let open Command.Let_syntax in *)
+(*      let%map_open  *)
+
+let list_folders =
+  Command.basic
+    ~summary:"List folders"
+    (let open Command.Let_syntax in
+     let%map_open name = flag "--name" (optional string) ~doc:"name filter by name"
+     and workspace_id = flag "--workspace-id" (optional string) ~doc:"id filter by workspace id"
+     and parent_folder_id = flag "--parent-folder-id" (optional string) ~doc:"id filter by parent folder id"
+     and order_by = flag "--order-by" (optional string) ~doc:"(CreatedAt|UpdatedAt) order by"
+     in
+     (fun () ->
+       let instance = Boostnote.Instance.(make ~base_url ~token) in
+       Boostnote.Folders.list ?name ?workspace_id ?parent_folder_id ?order_by instance ()
+       |> Lwt_main.run
+       |> (function
+           | Ok body -> body |> print_endline
+           | Error message -> message |> Piaf.Error.to_string |> print_endline)))
+
+(* let get_folder = assert false *)
+(* let create_folder = assert false *)
+(* let update_folder = assert false *)
+(* let delete_folder = assert false *)
+
+let folders =
+  Command.group
+    ~summary:"Commands about folders"
+    [ "list", list_folders
+    (* ; "get", get_folder *)
+    (* ; "create", create_docuemnt *)
+    (* ; "update", update_folder *)
+    (* ; "delete", delete_folder *)
+    ]
+
 let command =
   Command.group
     ~summary:"Boost Note"
     [ "documents", documents
+    ; "folders", folders
     ]
 
 let () =

@@ -25,13 +25,21 @@ and creator =
   ; updated_at : string
   }
 
-let list ?title ?archived ?workspace_id ?parent_folder_id ?order_by instance () =
-  let uri =
-    instance
-    |> Boostnote__instance.url_of "/docs"
-  in
+include Boostnote__helpers
+
+let list ?title ?(archived = false) ?workspace_id ?parent_folder_id ?order_by instance () =
+  let uri = instance |> Boostnote__instance.url_of "/docs" in
   let headers = Boostnote__instance.headers_of instance in
-  Request.get ~headers uri
+  let archived = archived |> Bool.to_string |> Option.some in
+  let queries =
+    [ "title", title
+    ; "archived", archived
+    ; "workspaceId", workspace_id
+    ; "parentFolderId", parent_folder_id
+    ; "orderBy", order_by
+    ] |> body_of_list
+  in
+  Request.get ~headers ~queries uri
 
 let get instance ~document_id () =
   let uri =
@@ -41,12 +49,6 @@ let get instance ~document_id () =
   in
   let headers = Boostnote__instance.headers_of instance in
   Request.get ~headers uri
-
-let body_of_list =
-  List.filter_map (fun (key, opt) ->
-      match opt with
-      | None -> None
-      | Some value -> Some (key, value))
 
 let create instance ~title ~content ?workspace_id ?parent_folder_id ?tags () =
   let uri = instance |> Boostnote__instance.url_of "/docs" in
