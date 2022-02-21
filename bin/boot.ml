@@ -146,7 +146,23 @@ let get_folder =
            | Ok body -> body |> print_endline
            | Error message -> message |> Piaf.Error.to_string |> print_endline)))
 
-(* let create_folder = assert false *)
+let create_folder =
+  Command.basic
+    ~summary:"Create a folder"
+    (let open Command.Let_syntax in
+     let%map_open name = anon ("name" %: string)
+     and emoji = flag "--emoji" (optional string) ~doc:"emoji Emoji for the folder to be created"
+     and workspace_id = flag "--workspace-id" (optional string) ~doc:"id Workspace in which to create folder"
+     and parent_folder_id = flag "--parent-folder-id" (optional string) ~doc:"Folder in which to create folder. If passd with workspaceId folder must be in that workspace"
+     in
+     (fun () ->
+       let instance = Boostnote.Instance.(make ~base_url ~token) in
+       Boostnote.Folders.create ?emoji ?workspace_id ?parent_folder_id ~name instance ()
+       |> Lwt_main.run
+       |> (function
+           | Ok body -> body |> print_endline
+           | Error message -> message |> Piaf.Error.to_string |> print_endline)))
+
 (* let update_folder = assert false *)
 (* let delete_folder = assert false *)
 
@@ -155,7 +171,7 @@ let folders =
     ~summary:"Commands about folders"
     [ "list", list_folders
     ; "get", get_folder
-    (* ; "create", create_docuemnt *)
+    ; "create", create_folder
     (* ; "update", update_folder *)
     (* ; "delete", delete_folder *)
     ]
