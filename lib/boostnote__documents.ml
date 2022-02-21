@@ -42,6 +42,12 @@ let get instance ~document_id () =
   let headers = Boostnote__instance.headers_of instance in
   Request.get ~headers uri
 
+let body_of_list =
+  List.filter_map (fun (key, opt) ->
+      match opt with
+      | None -> None
+      | Some value -> Some (key, value))
+
 let create instance ~title ~content ?workspace_id ?parent_folder_id ?tags () =
   let uri = instance |> Boostnote__instance.url_of "/docs" in
   let headers = Boostnote__instance.headers_of instance in
@@ -52,12 +58,24 @@ let create instance ~title ~content ?workspace_id ?parent_folder_id ?tags () =
     ; "parentFolderId", workspace_id
     ; "tags", Option.map (Printf.sprintf "[%s]") tags
     ]
-    |> List.filter_map (fun (key, opt) ->
-           match opt with
-           | None -> None
-           | Some value -> Some (key, value))
+    |> body_of_list
   in
   Request.post ~headers ~body uri
 
-let update instance ~docid () = assert false
+let update
+      ?title ?emoji ?content ?workspace_id ?parent_folder_id
+      ~document_id
+      instance () =
+  let uri = instance |> Boostnote__instance.url_of (Printf.sprintf "/docs/%s" document_id) in
+  let headers = Boostnote__instance.headers_of instance in
+  let body =
+    [ "title", title
+    ; "content", content
+    ; "emoji", emoji
+    ; "workspaceId", workspace_id
+    ; "parentFolderId", parent_folder_id
+    ] |> body_of_list
+  in
+  Request.patch ~headers ~body uri
+
 let delete instance ~docid () = assert false

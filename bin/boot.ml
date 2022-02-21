@@ -14,11 +14,11 @@ let list_documents =
   Command.basic
     ~summary:"List documents"
     (let open Command.Let_syntax in
-     let%map_open title = flag "--title" (optional string) ~doc:"filter by title"
+     let%map_open title = flag "--title" (optional string) ~doc:"title filter by title"
      and archived = flag "--archived" no_arg ~doc:"filter by archived"
-     and workspace_id = flag "--workspace-id" (optional string) ~doc:"fitler by workspace id"
-     and parent_folder_id = flag "--parent-folder-id" (optional string) ~doc:"filter by parent folder id"
-     and order_by = flag "--order-by" (optional string) ~doc:"filter by order by (created-at|updated-at)"
+     and workspace_id = flag "--workspace-id" (optional string) ~doc:"id fitler by workspace id"
+     and parent_folder_id = flag "--parent-folder-id" (optional string) ~doc:"id filter by parent folder id"
+     and order_by = flag "--order-by" (optional string) ~doc:"key filter by order by (created-at|updated-at)"
      in
      (fun () ->
        let instance = Boostnote.Instance.(make ~base_url ~token) in
@@ -48,9 +48,9 @@ let create_docuemnt =
     (let open Command.Let_syntax in
      let%map_open title = anon ("title" %: string)
      and content = anon ("content" %: string)
-     and workspace_id = flag "--workspace-id" (optional string) ~doc:"target workspace id"
-     and parent_folder_id = flag "--parnet-folder-id" (optional string) ~doc:"target parent folder id"
-     and tags = flag "--tags" (optional string) ~doc:"tags to add"
+     and workspace_id = flag "--workspace-id" (optional string) ~doc:"id target workspace id"
+     and parent_folder_id = flag "--parnet-folder-id" (optional string) ~doc:"id target parent folder id"
+     and tags = flag "--tags" (optional string) ~doc:"tags tags to add"
      in
      (fun () ->
        let instance = Boostnote.Instance.(make ~base_url ~token) in
@@ -64,12 +64,39 @@ let create_docuemnt =
            | Ok body -> body |> print_endline
            | Error message -> message |> Piaf.Error.to_string |> print_endline)))
 
+let update_document =
+  Command.basic
+    ~summary:"Update a dococument"
+    (let open Command.Let_syntax in
+     let%map_open document_id = anon ("document-id" %: string)
+     and title = flag "--title" (optional string) ~doc:"title New title"
+     and content = flag "--content" (optional string) ~doc:"content New content"
+     and emoji = flag "--emoji" (optional string) ~doc:"emoji New emoji"
+     and workspace_id = flag "--workspace-id" (optional string) ~doc:"id Target workspace id"
+     and parent_folder_id = flag "--parent-folder-id" (optional string) ~doc:"id Target parent folder id"
+     in
+     (fun () ->
+       let instance = Boostnote.Instance.(make ~base_url ~token) in
+       Boostnote.Documents.update
+         instance
+         ~document_id
+         ?title ?content ?emoji ?workspace_id ?parent_folder_id
+         ()
+       |> Lwt_main.run
+       |> (function
+           | Ok body -> body |> print_endline
+           | Error message -> message |> Piaf.Error.to_string |> print_endline)))
+
+(* let delete_document = assert false *)
+
 let documents =
   Command.group
     ~summary:"Commands about documents"
     [ "list", list_documents
     ; "get", get_document
     ; "create", create_docuemnt
+    ; "update", update_document
+    (* ; "delete", delete_document *)
     ]
 
 let command =
