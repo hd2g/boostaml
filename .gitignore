@@ -1,0 +1,5 @@
+.gitignore
+/.env
+/_build/
+/tests/*.json
+/scripts/
