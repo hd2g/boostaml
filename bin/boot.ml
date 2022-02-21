@@ -189,7 +189,7 @@ let folders =
 
 let command =
   Command.group
-    ~summary:"Boost Note"
+    ~summary:"Boost Note command line tool"
     [ "documents", documents
     ; "folders", folders
     ]
