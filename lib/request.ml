@@ -57,7 +57,7 @@ module Implement (Client : Client) = struct
 end
 
 include Implement(struct
-  type response = (string, Piaf.Error.t) Lwt_result.t
+  type response = (string, string) Lwt_result.t
 
   let piaf_method_of_meth (meth : Method.t) : Piaf.Method.t =
     Method.string_of meth |> Piaf.Method.of_string
@@ -90,10 +90,13 @@ include Implement(struct
     in
     let meth = piaf_method_of_meth meth in
     let open Lwt_result.Syntax in
-    let* res = Piaf.Client.Oneshot.request ~headers ?body ~meth uri in
-    if (Piaf.Status.is_successful res.status) then
-      Piaf.Body.to_string res.body
-    else
-      let message = Piaf.Status.to_string res.status in
-      Lwt.return (Error (`Msg message))
+    let result =
+      let* res = Piaf.Client.Oneshot.request ~headers ?body ~meth uri in
+      if (Piaf.Status.is_successful res.status) then
+        Piaf.Body.to_string res.body
+      else
+        let message = Piaf.Status.to_string res.status in
+        Lwt.return (Error (`Msg message))
+    in
+    result |> Lwt_result.map_err (fun error -> Piaf.Error.to_string error)
 end)
