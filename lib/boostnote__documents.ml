@@ -78,4 +78,7 @@ let update
   in
   Request.patch ~headers ~body uri
 
-let delete instance ~docid () = assert false
+let delete instance ~document_id () =
+  let uri = instance |> Boostnote__instance.url_of (Printf.sprintf "/docs/%s" document_id) in
+  let headers = instance |> Boostnote__instance.headers_of in
+  Request.delete ~headers uri

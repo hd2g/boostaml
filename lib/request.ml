@@ -71,7 +71,6 @@ include Implement(struct
         in
         `Assoc body'
         |> Yojson.Raw.to_string
-        |> (fun json -> print_endline ("body: " ^ json); json)
         |> Piaf.Body.of_string)
 
   let request ?(queries = []) ?(body = []) ?(headers = []) ~meth url =

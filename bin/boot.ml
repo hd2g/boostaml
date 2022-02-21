@@ -87,7 +87,18 @@ let update_document =
            | Ok body -> body |> print_endline
            | Error message -> message |> Piaf.Error.to_string |> print_endline)))
 
-(* let delete_document = assert false *)
+let delete_document =
+  Command.basic
+    ~summary:"Delete a document"
+    (let open Command.Let_syntax in
+     let%map_open document_id = anon ("document-id" %: string) in
+     (fun () ->
+       let instance = Boostnote.Instance.(make ~base_url ~token) in
+       Boostnote.Documents.delete instance ~document_id ()
+       |> Lwt_main.run
+       |> (function
+           | Ok body -> body |> print_endline
+           | Error message -> message |> Piaf.Error.to_string |> print_endline)))
 
 let documents =
   Command.group
@@ -96,7 +107,7 @@ let documents =
     ; "get", get_document
     ; "create", create_docuemnt
     ; "update", update_document
-    (* ; "delete", delete_document *)
+    ; "delete", delete_document
     ]
 
 let command =
