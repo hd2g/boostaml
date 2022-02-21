@@ -133,7 +133,19 @@ let list_folders =
            | Ok body -> body |> print_endline
            | Error message -> message |> Piaf.Error.to_string |> print_endline)))
 
-(* let get_folder = assert false *)
+let get_folder =
+  Command.basic
+    ~summary:"Get a folder"
+    (let open Command.Let_syntax in
+     let%map_open document_id = anon ("document-id" %: string) in
+     (fun () ->
+       let instance = Boostnote.Instance.(make ~base_url ~token) in
+       Boostnote.Folders.get ~document_id instance ()
+       |> Lwt_main.run
+       |> (function
+           | Ok body -> body |> print_endline
+           | Error message -> message |> Piaf.Error.to_string |> print_endline)))
+
 (* let create_folder = assert false *)
 (* let update_folder = assert false *)
 (* let delete_folder = assert false *)
@@ -142,7 +154,7 @@ let folders =
   Command.group
     ~summary:"Commands about folders"
     [ "list", list_folders
-    (* ; "get", get_folder *)
+    ; "get", get_folder
     (* ; "create", create_docuemnt *)
     (* ; "update", update_folder *)
     (* ; "delete", delete_folder *)

@@ -29,3 +29,8 @@ let list ?name ?workspace_id ?parent_folder_id ?order_by instance () =
     ] |> body_of_list
   in
   Request.get ~headers ~queries uri
+
+let get ~document_id instance () =
+  let uri = instance |> Boostnote__instance.url_of (Printf.sprintf "/folders/%s" document_id) in
+  let headers = Boostnote__instance.headers_of instance in
+  Request.get ~headers uri
