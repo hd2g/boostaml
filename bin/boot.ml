@@ -26,7 +26,7 @@ let list_documents =
        |> Lwt_main.run
        |> (function
            | Ok body -> print_endline body
-           | Error message -> message |> Piaf.Error.to_string |> print_endline)))
+           | Error message -> message |> print_endline)))
 
 let get_document =
   Command.basic
@@ -40,7 +40,7 @@ let get_document =
        |> Lwt_main.run
        |> (function
            | Ok body -> print_endline body
-           | Error message -> message |> Piaf.Error.to_string |> print_endline)))
+           | Error message -> message |> print_endline)))
 
 let create_docuemnt =
   Command.basic
@@ -62,7 +62,7 @@ let create_docuemnt =
        |> Lwt_main.run
        |> (function
            | Ok body -> body |> print_endline
-           | Error message -> message |> Piaf.Error.to_string |> print_endline)))
+           | Error message -> message |> print_endline)))
 
 let update_document =
   Command.basic
@@ -85,7 +85,7 @@ let update_document =
        |> Lwt_main.run
        |> (function
            | Ok body -> body |> print_endline
-           | Error message -> message |> Piaf.Error.to_string |> print_endline)))
+           | Error message -> message |> print_endline)))
 
 let delete_document =
   Command.basic
@@ -98,7 +98,7 @@ let delete_document =
        |> Lwt_main.run
        |> (function
            | Ok body -> body |> print_endline
-           | Error message -> message |> Piaf.Error.to_string |> print_endline)))
+           | Error message -> message |> print_endline)))
 
 let documents =
   Command.group
@@ -131,7 +131,7 @@ let list_folders =
        |> Lwt_main.run
        |> (function
            | Ok body -> body |> print_endline
-           | Error message -> message |> Piaf.Error.to_string |> print_endline)))
+           | Error message -> message |> print_endline)))
 
 let get_folder =
   Command.basic
@@ -144,7 +144,7 @@ let get_folder =
        |> Lwt_main.run
        |> (function
            | Ok body -> body |> print_endline
-           | Error message -> message |> Piaf.Error.to_string |> print_endline)))
+           | Error message -> message |> print_endline)))
 
 let create_folder =
   Command.basic
@@ -161,7 +161,7 @@ let create_folder =
        |> Lwt_main.run
        |> (function
            | Ok body -> body |> print_endline
-           | Error message -> message |> Piaf.Error.to_string |> print_endline)))
+           | Error message -> message |> print_endline)))
 
 let delete_folder =
   Command.basic
@@ -176,7 +176,7 @@ let delete_folder =
        |> Lwt_main.run
        |> (function
            | Ok body -> body |> print_endline
-           | Error message -> message |> Piaf.Error.to_string |> print_endline)))
+           | Error message -> message |> print_endline)))
 
 let folders =
   Command.group
