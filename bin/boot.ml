@@ -137,10 +137,10 @@ let get_folder =
   Command.basic
     ~summary:"Get a folder"
     (let open Command.Let_syntax in
-     let%map_open document_id = anon ("document-id" %: string) in
+     let%map_open folder_id = anon ("folder-id" %: string) in
      (fun () ->
        let instance = Boostnote.Instance.(make ~base_url ~token) in
-       Boostnote.Folders.get ~document_id instance ()
+       Boostnote.Folders.get ~folder_id instance ()
        |> Lwt_main.run
        |> (function
            | Ok body -> body |> print_endline
@@ -163,8 +163,20 @@ let create_folder =
            | Ok body -> body |> print_endline
            | Error message -> message |> Piaf.Error.to_string |> print_endline)))
 
-(* let update_folder = assert false *)
-(* let delete_folder = assert false *)
+let delete_folder =
+  Command.basic
+    ~summary:"Delete a folder"
+    (let open Command.Let_syntax in
+     let%map_open folder_id = anon ("folder-id" %: string)
+     and force = flag "--force" (optional string) ~doc:"(true|false) If passed and is 'true', it will delete the folder alogn with all it's contents. (This is not recoverable)"
+     in
+     (fun () ->
+       let instance = Boostnote.Instance.(make ~base_url ~token) in
+       Boostnote.Folders.delete ?force ~folder_id instance ()
+       |> Lwt_main.run
+       |> (function
+           | Ok body -> body |> print_endline
+           | Error message -> message |> Piaf.Error.to_string |> print_endline)))
 
 let folders =
   Command.group
@@ -172,8 +184,7 @@ let folders =
     [ "list", list_folders
     ; "get", get_folder
     ; "create", create_folder
-    (* ; "update", update_folder *)
-    (* ; "delete", delete_folder *)
+    ; "delete", delete_folder
     ]
 
 let command =

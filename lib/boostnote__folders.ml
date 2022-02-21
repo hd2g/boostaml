@@ -30,8 +30,8 @@ let list ?name ?workspace_id ?parent_folder_id ?order_by instance () =
   in
   Request.get ~headers ~queries uri
 
-let get ~document_id instance () =
-  let uri = instance |> Boostnote__instance.url_of (Printf.sprintf "/folders/%s" document_id) in
+let get ~folder_id instance () =
+  let uri = instance |> Boostnote__instance.url_of (Printf.sprintf "/folders/%s" folder_id) in
   let headers = Boostnote__instance.headers_of instance in
   Request.get ~headers uri
 
@@ -47,3 +47,13 @@ let create ?emoji ?workspace_id ?parent_folder_id ~name instance () =
     ] |> body_of_list
   in
   Request.post ~headers ~body uri
+
+let delete ?force ~folder_id instance () =
+  let uri = instance |> Boostnote__instance.url_of (Printf.sprintf "/folders/%s" folder_id) in
+  let headers = Boostnote__instance.headers_of instance in
+  let force = Option.map process_bool_string_exn force in
+  let body =
+    [ "force", force
+    ] |> body_of_list
+  in
+  Request.delete ~headers ~body uri
